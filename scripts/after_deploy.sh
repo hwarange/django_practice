@@ -1,7 +1,6 @@
 #!/bin/bash
-REPOSITORY=/home/ubuntu/
 
-cd $REPOSITORY/django_practice
+cd  /home/ubuntu/django_practice
 
 echo "> 🔵 Stop & Remove docker services."
 sudo docker-compose down
