@@ -4,8 +4,11 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.utils.text import slugify
+from django.http import JsonResponse
+from openai import OpenAI
 from .models import Post, Category, Tag, Comment
 from .forms import CommentForm
+
 
 # 특정 태그에 해당하는 포스트들을 표시하는 함수형 뷰
 def tag_page(request, slug):
@@ -257,3 +260,45 @@ class PostSearch(PostList):
         context['search_info'] = f'검색: {q} ({self.get_queryset().count()})'
 
         return context
+
+
+def get_response(request):
+    client = OpenAI()
+
+    if request.method == 'POST':
+        user_input = request.POST.get('text')
+
+        try:
+            response = client.chat.completions.create(
+                model='gpt-4o-mini',
+                messages=[
+                    {
+                        'role': 'system',
+                        'content': '너는 유저의 질문에 친절하게 답하는 봇이야.'
+                    },
+                    {
+                        'role': 'user',
+                        'content': user_input
+                    },
+                ]
+            )
+
+            answer = response.choices[0].message.content.strip()
+
+            return JsonResponse({"response": answer})
+        except Exception as error:
+            return JsonResponse({"error": str(error)})
+    
+    return render(
+        request,
+        'blog/llm.html',
+    )
+
+
+
+
+
+
+
+
+
