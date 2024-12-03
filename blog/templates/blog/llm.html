@@ -1,0 +1,49 @@
+{% extends 'blog/base_full_width.html' %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}Chat{% endblock %}
+
+{% block main_area %}
+    <h1>LLM Prompt</h1>
+    <hr/>
+    <form method="post" enctype="multipart/form-data" id="chat-form"  onsubmit="event.preventDefault(); getResponse();">{% csrf_token %}
+        {% csrf_token %}
+        <input type="text" id="user_input" placeholder="prompt를 입력해주세요" required>
+        <button type="submit" class="btn btn-primary ms-auto d-block">Submit</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        function getResponse() {
+            const userInput = document.getElementById('user_input').value;
+
+            if (!userInput.trim()){
+                alert('prompt를 입력해주세요.');
+                return;
+            }
+
+            document.getElementById('response').innerText = '응답을 생성 중 입니다.';
+            fetch('{% url "get_response" %}', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: "text=" + encodeURIComponent(userInput) + "&csrfmiddlewaretoken" + encodeURIComponent(document.querySelector('[name="csrfmiddlewaretoken"]').value),
+            })
+            .then(response => response.json)
+            .then(data => {
+                if (data.response) {
+                    document.getElementById('response').innerText = "Response: " + data.response
+                }
+                else {
+                    document.getElementById('response').innerText = "Error: " + data.error
+                    
+                }
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = '에러가 발생했습니다.'
+            })
+        }
+    </script>
+{% endblock %}
