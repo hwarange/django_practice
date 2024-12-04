@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
+    path('llm/', views.get_response, name='get_response'),                                    # 127.0.0.1/blog/llm/
     path("search/<str:q>", views.PostSearch.as_view()),                  # 127.0.0.1/blog/search/1
     path("delete_comment/<int:pk>", views.delete_comment),               # 127.0.0.1/blog/delete_comment/1
     path("update_comment/<int:pk>", views.CommentUpdate.as_view()),      # 127.0.0.1/blog/update_comment/1
